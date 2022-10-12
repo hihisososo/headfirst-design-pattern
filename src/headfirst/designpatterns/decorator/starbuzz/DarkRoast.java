@@ -2,7 +2,7 @@ package headfirst.designpatterns.decorator.starbuzz;
 
 public class DarkRoast extends Beverage {
 	public DarkRoast() {
-		description = "Dark Roast Coffee";
+		description = "다크 로스트 커피";
 	}
  
 	public double cost() {

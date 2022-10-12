@@ -14,7 +14,7 @@ public class PizzaDirector {
 		// Could hand builders to PizzaStore which would take the customer's order,
 		//   and call appropriate methods for each topping, then call the
 		//   pizza methods to prep and return to the customer. 
-		PizzaBuilder veggieBuilder = new VeggieLoversPizzaBuilder();
+		PizzaBuilder veggieBuilder = new VeggiePizzaBuilder();
 		// The PizzaDirector calls the methods in the correct order to
 		// build a veggiePizza. 
 		Pizza veggie = veggieBuilder.addSauce().addCheese().addOlives().addTomatoes().addSausage().build();
@@ -24,7 +24,7 @@ public class PizzaDirector {
 		veggie.box();
 		System.out.println(veggie);
 		
-		PizzaBuilder meatBuilder = new MeatLoversPizzaBuilder();
+		PizzaBuilder meatBuilder = new MeatPizzaBuilder();
 		// The PizzaDirector calls the methods in the correct order to build
 		// a meat lovers Pizza
 		Pizza meat = meatBuilder.addSauce().addTomatoes().addCheese().addSausage().addPepperoni().build();
