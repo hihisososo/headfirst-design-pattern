@@ -13,15 +13,15 @@ public abstract class Pizza {
 	abstract void prepare();
 
 	void bake() {
-		System.out.println("Bake for 25 minutes at 350");
+		System.out.println("175도에서 25분 굽기");
 	}
 
 	void cut() {
-		System.out.println("Cutting the pizza into diagonal slices");
+		System.out.println("피자를 사선으로 자르기");
 	}
 
 	void box() {
-		System.out.println("Place pizza in official PizzaStore box");
+		System.out.println("상자에 피자 담기");
 	}
 
 	void setName(String name) {
