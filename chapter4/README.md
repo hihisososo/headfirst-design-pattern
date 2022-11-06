@@ -1,105 +1,157 @@
-# (3장) 객체 꾸미기 - 데코레이터 패턴
+# 디자인 패턴 스터디(싱글턴 패턴)
 
-## 커피 전문점, 스타버즈
-* 스타버즈라는 커피숍에서, 아래와 같은 주문 시스템 클래스를 통해 사업을 하고 있다
-![decorator](./picture/decorator.PNG)
-* 우유, 두유, 휘핑크림등의 첨가물을 얹어야 할 경우 각각의 클래스를 만들어 해결하다 보니, 아래와 같이 클래스가 다수 생성되게 되었다
-![decorator2](./picture/decorator2.PNG)
-* 이런 문제를 해결하기 위해, 첨가물들을 슈퍼클래스의 인스턴스 변수로 아래와 같이 변경하였다
-![decorator3](./picture/decorator3.PNG)
-* 첨가물을 인스턴스화하여 한 구현으로 나름 많이 깔끔해졌는데, 어떤 부분이 문제일까?
-* 문제점
-  * 첨가물 가격이 바뀔 때마다 기존 코드를 수정해야 한다
-  * 첨가물의 종류가 많아지면 새로운 메서드 추가 및, 슈퍼클래스의 cost() 메서드를 수정해야 한다
-  * 특정 첨가물이 들어가면 안되는 클래스도 첨가물의 인스턴스를 가지게 됨
-  * 첨가물을 두개 주문하는 것을 고려하지 않음
+# 싱글턴 패턴의 정의
 
-* 데코레이터 패턴은, 위와 같은 상황에서 첨가물로 음료를 '장식' 할 수 있도록 해준다
-![decorator4](./picture/decorator4.PNG)
+> 클래스 인스턴스를 하나만 만들고, 그 인스턴스로의 전역 접근을 제공한다
+> 
 
-## 데코레이터 패턴의 정의
-> 데코레이터 패턴으로 객체에 추가 요소를 동적으로 더할 수 있으며, 서브클래스를 만들 때보다 훨씬 유연하게 기능을 확장할 수 있다
-* 패턴의 클래스 다이어그램
+### 고전적인 싱글턴 패턴 구현법
 
-  ![decorator5](./picture/decorator5.PNG)
+```java
+public class Singleton {
+	private static Singleton uniqueInstance;
+ 
+	private Singleton() {}
+ 
+	public static Singleton getInstance() {
+		if (uniqueInstance == null) {
+			uniqueInstance = new Singleton();
+		}
+		return uniqueInstance;
+	}
+}
+```
 
-* 데코레이터 패턴을 이용해서, 커피에 적용시키면 아래와 같다
-  ![decorator6](./picture/decorator6.PNG)
+- 생성자를 private 처리하여, 외부에서 new 로 객체생성을 막는다
 
-* 각 첨가물들은 음료 클래스를 내부 필드로 가지고 있으며, CondimentDecorator 추상 클래스는, Beverage 를 상속하고 있다(첨가물 클래스가 Beverage 여야 하므로)
-* Beverage class
-  ```java
-  public abstract class Beverage {
-      String description = "제목 없음";
-    
-      public String getDescription() {
-          return description;
-      }
-   
-      public abstract double cost();
-  }
-  ```
-* CondimentDecorator class
-  ```java
-  public abstract class CondimentDecorator extends Beverage {
-      Beverage beverage;
-      public abstract String getDescription();
-  }
-  ```
-* Espresso class
-  ```java
-  public class Espresso extends Beverage {
-    
-      public Espresso() {
-          description = "에스프레소";
-      }
-    
-      public double cost() {
-          return 1.99;
-      }
-  }
-  ```
-* Mocha class
-  ```java
-  public class Mocha extends CondimentDecorator {
-      public Mocha(Beverage beverage) {
-          this.beverage = beverage;
-      }
-   
-      public String getDescription() {
-          return beverage.getDescription() + ", 모카";
-      }
-   
-      public double cost() {
-          return .20 + beverage.cost();
-      }
-  }
-  ```
-* StarBuzzCoffee class
-  ```java
-  public class StarbuzzCoffee {
-   
-      public static void main(String args[]) {
-          Beverage beverage = new Espresso();
-          System.out.println(beverage.getDescription() 
-                  + " $" + beverage.cost());
-   
-          Beverage beverage2 = new DarkRoast();
-          beverage2 = new Mocha(beverage2);
-          beverage2 = new Mocha(beverage2);
-          beverage2 = new Whip(beverage2);
-          System.out.println(beverage2.getDescription() 
-                  + " $" + beverage2.cost());
-   
-      }
-  }
+### 싱글턴 패턴의 이점
+
+1. 설정 객체등, 하나만 존재해야 하는 인스턴스에 대한 구현 방법 제공
+2. 전역 변수로 선언하는것과 다르게, 실제 사용할 때만 객체를 생성할 수 있음
+3. 전역으로 접근 방법을 제공하므로, 파라미터 없이 다른 클래스에서 자원에 대한 접근이 가능
+
+### 초콜릿 보일러 코드의 문제점?
+
+```java
+public class ChocolateBoiler {
+	private boolean empty;
+	private boolean boiled;
+	
+	private ChocolateBoiler() {
+		empty = true;
+		boiled = false;
+	}
   
-  실행결과
+	public void fill() {
+		if (isEmpty()) {
+			empty = false;
+			boiled = false;
+			// 보일러에 우유와 초콜릿을 혼합한 재료를 넣음
+		}
+	}
+ 
+	public void drain() {
+		if (!isEmpty() && isBoiled()) {
+			// 끓인 재료를 다음 단계로 넘김
+			empty = true;
+		}
+	}
+ 
+	public void boil() {
+		if (!isEmpty() && !isBoiled()) {
+			// 재료를 끓임
+			boiled = true;
+		}
+	}
   
-  에스프레소 $1.99
-  다크 로스트 커피, 모카, 모카, 휘핑크림 $1.49
-  ```
-  
-* 데코레이터 패턴의 조심해야 할 점
-  * 데코레이터로 감싸면, 원래 어떤 커피였는지 알기가 힘들어진다. 만약 다크블렌드 커피만 특별 할인이 들어간다면? 이럴 경우에는 데코레이터 패턴을 지양하여야 한다
-  * 감싸는 순서가 강제되지 않으므로.. 순서가 중요하다면 주의해서 감싸야 한다
+	public boolean isEmpty() {
+		return empty;
+	}
+ 
+	public boolean isBoiled() {
+		return boiled;
+	}
+}
+```
+
+- 인스턴스가 두개 이상 생길 경우, fill → boil → drain 로직이 엉뚱하게 호출될 수 있다
+
+### 클래스 다이어그램
+
+![Untitled](picture/Untitled.png)
+
+- 정적 변수에 인스턴스 저장, 정적 메서드로 인스턴스에 대한 접근 허용
+
+### 고전적인 싱글턴 방식의 멀티스레딩 문제
+
+- 고전 방식의 싱글턴은, 멀티스레드 어플리케이션 내에서 두개 이상의 인스턴스를 생성할 수 있으므로 아래와 같이 synchronized 를 통해 동시 접근을 막는다
+
+```java
+public class Singleton {
+	private static Singleton uniqueInstance;
+ 
+	private Singleton() {}
+ 
+	public **static** synchronized Singleton getInstance() {
+		if (uniqueInstance == null) {
+			uniqueInstance = new Singleton();
+		}
+		return uniqueInstance;
+	}
+```
+
+- 메소드를 동기화 하면 약 100배정도 느려진다
+- 느려짐을 해결하는 방법
+    1. 성능이 중요하지 않은 부분인 경우 그냥 둔다
+    2. 싱글톤 인스턴스를 그냥 만들어버린다
+    3. DCL(Double-Checked Locking) 을 쓴다
+    
+    ```java
+    private volatile static Singleton uniqueInstance;
+     
+    	private Singleton() {}
+     
+    	public static Singleton getInstance() {
+    		if (uniqueInstance == null) {
+    			synchronized (Singleton.class) {
+    				if (uniqueInstance == null) {
+    					uniqueInstance = new Singleton();
+    				}
+    			}
+    		}
+    		return uniqueInstance;
+    	}
+    ```
+    
+- volatile 을 왜 쓸까?, DCL 에서 volatile 을 쓰지 않았을 경우 두개의 인스턴스가 만들어질 수 있음
+- [https://junghyungil.tistory.com/150](https://junghyungil.tistory.com/150)
+
+### 직렬화/역직렬화, 리플렉션
+
+- 싱글턴은 이제 완벽한가?, 직렬화/역직렬화 리플렉션 등을 통해 여러 인스턴스가 만들어 질 수 있음
+- [https://scshim.tistory.com/361](https://scshim.tistory.com/361)
+
+### Enum 을 통한, 싱글턴 생성
+
+- Enum 을 통해서도, 싱글턴을 구현할 수 있다
+
+```java
+public enum Singleton {
+	UNIQUE_INSTANCE;
+
+}
+```
+
+- 직렬화/역직렬화 리플렉션에 안전한데..
+- 해당과 같이 쓰는 부분은 아직 보지 못하였음
+
+## 제가 경험한 싱글턴의 장/단점
+
+- 장점
+    - 접근하기 편하다(안좋은면 일수도)
+- 단점
+    - 설정을 싱글턴으로 사용하고 있음, 작은 부분 테스트 시에도 해당 부분이 싱글턴 객체를 참조하고 있다면, 세팅을 로딩해줘야 하는 경우가 있음
+    - 설정 변경시, 굉장히 많은 클래스를 수정하여야 하는 부분
+    
+
+##
